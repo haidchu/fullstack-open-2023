@@ -1,8 +1,8 @@
 const Part = (props) => {
-    const { name, exercises } = props;
+    const { part } = props;
     return (
         <p>
-            {name} {exercises}
+            {part.name} {part.exercises}
         </p>
     );
 };
