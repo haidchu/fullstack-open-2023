@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import ListPerson from "./components/listPerson/ListPerson";
 import AddPerson from "./components/addPerson/AddPerson";
 import Filter from "./components/filter/Filter";
-
 import PersonService from "./services/persons";
 
 const App = () => {
@@ -29,17 +28,25 @@ const App = () => {
             number: newNumber,
         };
         if (persons.find((person) => person.name === newName)) {
-            alert(`${newName} is already added to phonebook`);
+            const id = persons.find((person) => person.name === newName).id;
+            const person = {
+                id: id,
+                name: newName,
+                number: newNumber,
+            };
+            updatePerson(id, person);
             return;
         }
         setPersons(persons.concat(personObject));
         setFiltered(persons.concat(personObject));
         setNewName("");
+        setNewNumber("");
         const postData = async () => {
             const response = await PersonService.create(personObject);
         };
         postData();
     };
+
     const deletePerson = (id) => {
         const person = persons.find((person) => person.id === id);
         if (window.confirm(`Delete ${person.name}?`)) {
@@ -49,12 +56,28 @@ const App = () => {
             });
         }
     };
+
+    const updatePerson = (id, person) => {
+        PersonService.update(id, person).then((response) => {
+            setPersons(
+                persons.map((person) => (person.id !== id ? person : response))
+            );
+            setFiltered(
+                persons.map((person) => (person.id !== id ? person : response))
+            );
+            setNewName("");
+            setNewNumber("");
+        });
+    };
+
     const handleNameChange = (event) => {
         setNewName(event.target.value);
     };
+
     const handleNumberChange = (event) => {
         setNewNumber(event.target.value);
     };
+
     const handleFilterChange = (event) => {
         setFiltered(
             persons.filter((person) =>
