@@ -3,7 +3,7 @@ import ListPerson from "./components/listPerson/ListPerson";
 import AddPerson from "./components/addPerson/AddPerson";
 import Filter from "./components/filter/Filter";
 
-import axios from "axios";
+import PersonService from "./services/persons";
 
 const App = () => {
     // State
@@ -14,11 +14,13 @@ const App = () => {
 
     // Custom Hooks
     useEffect(() => {
-		axios.get("http://localhost:3001/persons").then((response) => {
-			setPersons(response.data);
-			setFiltered(response.data);
-		});
-	}, []);
+        const getData = async () => {
+            const response = await PersonService.getAll();
+            setPersons(response);
+            setFiltered(response);
+        };
+        getData();
+    }, []);
     // Event Handlers
     const addPerson = (event) => {
         event.preventDefault();
@@ -32,8 +34,11 @@ const App = () => {
         }
         setPersons(persons.concat(personObject));
         setFiltered(persons.concat(personObject));
-		axios.post("http://localhost:3001/persons", personObject);
         setNewName("");
+        const postData = async () => {
+            const response = await PersonService.create(personObject);
+        };
+        postData();
     };
     const handleNameChange = (event) => {
         setNewName(event.target.value);
