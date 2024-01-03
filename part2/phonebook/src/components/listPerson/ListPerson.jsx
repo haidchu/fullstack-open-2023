@@ -1,17 +1,20 @@
 import Person from "./Person";
 
 const ListPerson = (props) => {
-    const { persons } = props;
+    const { persons, handleDelete } = props;
     return (
         <div>
             <h1>Number</h1>
-            {persons.map((person) => {
+            {persons.map((person, index) => {
                 return (
-                    <Person
-                        key={person.name}
-                        name={person.name}
-                        number={person.number}
-                    />
+                    <div key={person.name}>
+                        <Person
+                            id={person.id}
+                            name={person.name}
+                            number={person.number}
+                            handleDelete={handleDelete}
+                        />
+                    </div>
                 );
             })}
         </div>
