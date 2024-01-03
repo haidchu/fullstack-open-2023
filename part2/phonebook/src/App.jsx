@@ -32,6 +32,7 @@ const App = () => {
         }
         setPersons(persons.concat(personObject));
         setFiltered(persons.concat(personObject));
+		axios.post("http://localhost:3001/persons", personObject);
         setNewName("");
     };
     const handleNameChange = (event) => {
