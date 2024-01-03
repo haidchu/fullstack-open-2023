@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ListPerson from "./components/listPerson/ListPerson";
 import AddPerson from "./components/addPerson/AddPerson";
 import Filter from "./components/filter/Filter";
 
+import axios from "axios";
+
 const App = () => {
-    const [persons, setPersons] = useState([
-        { name: "Arto Hellas", number: "040-123456", id: 1 },
-        { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-        { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-        { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-    ]);
+    // State
+    const [persons, setPersons] = useState([]);
     const [filtered, setFiltered] = useState([...persons]);
     const [newName, setNewName] = useState("");
     const [newNumber, setNewNumber] = useState("");
+
+    // Custom Hooks
+    useEffect(() => {
+		axios.get("http://localhost:3001/persons").then((response) => {
+			setPersons(response.data);
+			setFiltered(response.data);
+		});
+	}, []);
+    // Event Handlers
     const addPerson = (event) => {
         event.preventDefault();
         const personObject = {
@@ -42,6 +49,8 @@ const App = () => {
             )
         );
     };
+
+    // The actual component
     return (
         <div>
             <h1>Phonebook</h1>
