@@ -18,8 +18,8 @@ const App = () => {
     return (
         <div>
             <Header title="give feedback" />
-			<Content eventHandler={eventHandler} />
-			<Statistics good={good} neutral={neutral} bad={bad} />
+            <Content eventHandler={eventHandler} />
+            <Statistics good={good} neutral={neutral} bad={bad} />
         </div>
     );
 };
