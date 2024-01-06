@@ -3,6 +3,7 @@ import ListPerson from "./components/listPerson/ListPerson";
 import AddPerson from "./components/addPerson/AddPerson";
 import Filter from "./components/filter/Filter";
 import PersonService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
     // State
@@ -10,6 +11,7 @@ const App = () => {
     const [filtered, setFiltered] = useState([...persons]);
     const [newName, setNewName] = useState("");
     const [newNumber, setNewNumber] = useState("");
+    const [errorMessage, setErrorMessage] = useState(null);
 
     // Custom Hooks
     useEffect(() => {
@@ -20,6 +22,7 @@ const App = () => {
         };
         getData();
     }, []);
+
     // Event Handlers
     const addPerson = (event) => {
         event.preventDefault();
@@ -34,9 +37,19 @@ const App = () => {
                 name: newName,
                 number: newNumber,
             };
+            setErrorMessage(
+                `${newName}'s number has been updated to ${newNumber}`
+            );
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 5000);
             updatePerson(id, person);
             return;
         }
+        setErrorMessage(`Added ${newName}`);
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, 5000);
         setPersons(persons.concat(personObject));
         setFiltered(persons.concat(personObject));
         setNewName("");
@@ -92,6 +105,7 @@ const App = () => {
     return (
         <div>
             <h1>Phonebook</h1>
+            <Notification message={errorMessage} />
             <Filter handleFilterChange={handleFilterChange} />
             <AddPerson
                 newName={newName}
