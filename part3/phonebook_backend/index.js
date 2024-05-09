@@ -32,6 +32,12 @@ app.get("/api/persons", (req, res) => {
     res.json(phonebooks);
 });
 
+app.get("/api/persons/:id", (req, res) => {
+    id = parseInt(req.params.id) - 1;
+    if (id > phonebooks.length) res.status(404).send("person not found");
+    res.json(phonebooks[id]);
+});
+
 app.get("/info", (req, res) => {
     current = new Date().toString()
     message = `
