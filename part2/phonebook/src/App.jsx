@@ -56,6 +56,8 @@ const App = () => {
         setNewNumber("");
         const postData = async () => {
             const response = await PersonService.create(personObject);
+            setPersons([...persons, response.person])
+            setFiltered([...persons, response.person])
         };
         postData();
     };

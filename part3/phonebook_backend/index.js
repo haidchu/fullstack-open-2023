@@ -1,14 +1,16 @@
 const express = require("express")
 const morgan = require("morgan")
+const cors = require("cors")
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 morgan.token('req-body', function (req, res) {
     return JSON.stringify(req.body);
-  });
-  
-  app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
-  
+});
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
+
 
 let phonebooks = [
     {
@@ -34,31 +36,29 @@ let phonebooks = [
 ]
 
 app.get("/", (req, res) => {
-    res.send("Hello World");
+    return res.send("Hello World");
 });
 
 app.get("/api/persons", (req, res) => {
-    res.json(phonebooks);
+    return res.json(phonebooks);
 });
 
 app.get("/api/persons/:id", (req, res) => {
     id = parseInt(req.params.id);
     person = phonebooks.find((item) => item.id === id);
-    if (person) res.status(200).json(person);
-    else res.status(404).send("person not found");
+    if (person) return res.status(200).json(person);
+    else return res.status(404).send("person not found");
 });
 
 app.post("/api/persons", (req, res) => {
     const id = Math.floor(Math.random() * 10000) + 1;
     const { name, number } = req.body;
     if (!name || !number) {
-        res.status(400).json({ "error": "request must contain name and number." })
-        return
+        return res.status(400).json({ "error": "request must contain name and number." })
     }
     phonebooks.forEach((item) => {
         if (item.name === name) {
-            res.status(400).json({ "error": "name must be unique." })
-            return
+            return res.status(400).json({ "error": "name must be unique." })
         }
     })
     const item = {
@@ -67,7 +67,10 @@ app.post("/api/persons", (req, res) => {
         "number": number
     };
     phonebooks.push(item);
-    res.status(200).send(`person with name ${name} created successfully.`);
+    return res.status(200).json({
+        "message": `person with name ${name} created successfully.`,
+        "person": item
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
@@ -75,9 +78,9 @@ app.delete("/api/persons/:id", (req, res) => {
     person = phonebooks.find((item) => item.id === id);
     if (person) {
         phonebooks = phonebooks.filter((item) => item.id !== person.id);
-        res.status(200).send(`person with id ${id} deleted`);
+        return res.status(200).send(`person with id ${id} deleted`);
     }
-    res.status(404).send("person not found");
+    return res.status(404).send("person not found");
 })
 
 app.get("/info", (req, res) => {

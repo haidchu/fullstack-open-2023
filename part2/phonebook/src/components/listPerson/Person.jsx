@@ -3,7 +3,7 @@ const Person = (props) => {
     return (
         <div>
             <p>
-                {name} {number} {" "}
+                {id} {name} {number} {" "}
                 <button onClick={() => handleDelete(id)}>Delete</button>
             </p>
         </div>
