@@ -13,7 +13,7 @@ POST {{host}}/api/persons
 Content-Type: application/json
 
 {
-    "name": "John Doe",
+    "name": "Jane Doe",
     "number": "012-345-6789"
 }
 

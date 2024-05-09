@@ -44,6 +44,16 @@ app.get("/api/persons/:id", (req, res) => {
 app.post("/api/persons", (req, res) => {
     const id = Math.floor(Math.random() * 10000) + 1;
     const { name, number } = req.body;
+    if (!name || !number) {
+        res.status(400).json({ "error": "request must contain name and number." })
+        return
+    }
+    phonebooks.forEach((item) => {
+        if (item.name === name) {
+            res.status(400).json({ "error": "name must be unique." })
+            return
+        }
+    })
     const item = {
         "id": id,
         "name": name,
