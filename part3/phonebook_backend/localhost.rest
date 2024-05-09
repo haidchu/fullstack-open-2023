@@ -1,0 +1,13 @@
+@hostname = localhost
+@port = 3001
+@host = http://{{hostname}}:{{port}}
+
+###
+GET {{host}}/api/persons
+
+###
+GET {{host}}/api/persons/1
+
+###
+DELETE  {{host}}/api/persons/1
+
