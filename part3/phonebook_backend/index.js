@@ -1,6 +1,8 @@
 const express = require("express")
 const app = express()
 
+app.use(express.json())
+
 let phonebooks = [
     {
         "id": 1,
@@ -36,7 +38,19 @@ app.get("/api/persons/:id", (req, res) => {
     id = parseInt(req.params.id);
     person = phonebooks.find((item) => item.id === id);
     if (person) res.status(200).json(person);
-    res.status(404).send("person not found");
+    else res.status(404).send("person not found");
+});
+
+app.post("/api/persons", (req, res) => {
+    const id = Math.floor(Math.random() * 10000) + 1;
+    const { name, number } = req.body;
+    const item = {
+        "id": id,
+        "name": name,
+        "number": number
+    };
+    phonebooks.push(item);
+    res.status(200).send(`person with name ${name} created successfully.`);
 });
 
 app.delete("/api/persons/:id", (req, res) => {

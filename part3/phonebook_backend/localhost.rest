@@ -9,5 +9,14 @@ GET {{host}}/api/persons
 GET {{host}}/api/persons/1
 
 ###
+POST {{host}}/api/persons 
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "number": "012-345-6789"
+}
+
+###
 DELETE  {{host}}/api/persons/1
 
