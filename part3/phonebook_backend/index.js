@@ -3,24 +3,7 @@ const morgan = require("morgan")
 const cors = require("cors")
 const app = express()
 
-require('dotenv').config()
-const mongoose = require('mongoose')
-const url = process.env.MONGODB_URI
-mongoose.set('strictQuery', false)
-
-const ContactSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
-
-const Contact = mongoose.model('Contact', ContactSchema)
-ContactSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
-})
+const Contact = require("./models/contact")
 
 app.use(express.json())
 app.use(cors())
@@ -59,10 +42,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/persons", async (req, res) => {
-    mongoose.connect(url);
     const result = await Contact.find({});
-    console.log(result);
-    mongoose.connection.close();
     return res.json(result);
 });
 
@@ -114,7 +94,7 @@ app.get("/info", (req, res) => {
     res.send(message)
 })
 
-const PORT = 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`)
 })
