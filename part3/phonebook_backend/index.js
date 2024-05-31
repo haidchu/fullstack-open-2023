@@ -3,6 +3,25 @@ const morgan = require("morgan")
 const cors = require("cors")
 const app = express()
 
+require('dotenv').config()
+const mongoose = require('mongoose')
+const url = process.env.MONGODB_URI
+mongoose.set('strictQuery', false)
+
+const ContactSchema = new mongoose.Schema({
+    name: String,
+    number: String,
+})
+
+const Contact = mongoose.model('Contact', ContactSchema)
+ContactSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id
+        delete returnedObject._id
+        delete returnedObject.__v
+    }
+})
+
 app.use(express.json())
 app.use(cors())
 morgan.token('req-body', function (req, res) {
@@ -39,8 +58,12 @@ app.get("/", (req, res) => {
     return res.send("Hello World");
 });
 
-app.get("/api/persons", (req, res) => {
-    return res.json(phonebooks);
+app.get("/api/persons", async (req, res) => {
+    mongoose.connect(url);
+    const result = await Contact.find({});
+    console.log(result);
+    mongoose.connection.close();
+    return res.json(result);
 });
 
 app.get("/api/persons/:id", (req, res) => {
