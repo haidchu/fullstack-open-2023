@@ -13,7 +13,6 @@ morgan.token('req-body', function (req, res) {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
-
 let phonebooks = [
     {
         "id": 1,
@@ -46,16 +45,14 @@ app.get("/api/persons", async (req, res) => {
     return res.json(result);
 });
 
-app.get("/api/persons/:id", async (req, res) => {
+app.get("/api/persons/:id", async (req, res, next) => {
     const id = req.params.id;
-    let person = null
-    try {
-        person = await Contact.findById(id);
-    } catch (err) {
-        return res.status(404).json({ "message": "person not found" });
-    }
-    if (person) return res.status(200).json(person);
-    else return res.status(404).json({ "message": "person not found" });
+    Contact.findById(id)
+        .then(person => {
+            if (person) return res.status(200).json(person);
+            else return res.status(404).json({ "message": "person not found" });
+        })
+        .catch(err => next(err));
 });
 
 app.post("/api/persons", async (req, res) => {
@@ -76,14 +73,19 @@ app.post("/api/persons", async (req, res) => {
     });
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-    id = parseInt(req.params.id);
-    person = phonebooks.find((item) => item.id === id);
-    if (person) {
-        phonebooks = phonebooks.filter((item) => item.id !== person.id);
-        return res.status(200).send(`person with id ${id} deleted`);
-    }
-    return res.status(404).send("person not found");
+app.delete("/api/persons/:id", (req, res, next) => {
+    id = req.params.id;
+    Contact.findByIdAndDelete(id)
+        .then(result => {
+            console.log(result);
+            return res.status(204).end();
+        })
+        .catch(err => next(err))
+    // person = phonebooks.find((item) => item.id === id);
+    // if (person) {
+    //     phonebooks = phonebooks.filter((item) => item.id !== person.id);
+    // }
+    // return res.status(404).send("person not found");
 })
 
 app.get("/info", (req, res) => {
@@ -93,6 +95,14 @@ app.get("/info", (req, res) => {
     <p>${current}</p>`
     res.send(message)
 })
+
+// error handling
+const errorHandler = (err, req, res, next) => {
+    console.error(err.message)
+    if (err.name === 'CastError') return res.status(500).json({ "message": "malformatted id" });
+    next(err);
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
