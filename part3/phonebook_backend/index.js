@@ -46,9 +46,10 @@ app.get("/api/persons", async (req, res) => {
     return res.json(result);
 });
 
-app.get("/api/persons/:id", (req, res) => {
-    id = parseInt(req.params.id);
-    person = phonebooks.find((item) => item.id === id);
+app.get("/api/persons/:id", async (req, res) => {
+    const id = req.params.id;
+    const person = await Contact.findById(id);
+    console.log(person);
     if (person) return res.status(200).json(person);
     else return res.status(404).send("person not found");
 });
