@@ -48,32 +48,31 @@ app.get("/api/persons", async (req, res) => {
 
 app.get("/api/persons/:id", async (req, res) => {
     const id = req.params.id;
-    const person = await Contact.findById(id);
-    console.log(person);
+    let person = null
+    try {
+        person = await Contact.findById(id);
+    } catch (err) {
+        return res.status(404).json({ "message": "person not found" });
+    }
     if (person) return res.status(200).json(person);
-    else return res.status(404).send("person not found");
+    else return res.status(404).json({ "message": "person not found" });
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
     const id = Math.floor(Math.random() * 10000) + 1;
     const { name, number } = req.body;
     if (!name || !number) {
         return res.status(400).json({ "error": "request must contain name and number." })
     }
-    phonebooks.forEach((item) => {
-        if (item.name === name) {
-            return res.status(400).json({ "error": "name must be unique." })
-        }
-    })
-    const item = {
-        "id": id,
-        "name": name,
-        "number": number
-    };
-    phonebooks.push(item);
+    const check_existed = await Contact.find({ name: name });
+    if (check_existed.length != 0) return res.status(400).json({ "error": "name must be unique." });
+    const contact = new Contact({
+        name: name,
+        number: number
+    });
+    await contact.save();
     return res.status(200).json({
-        "message": `person with name ${name} created successfully.`,
-        "person": item
+        "message": `person with name ${name} created successfully.`
     });
 });
 

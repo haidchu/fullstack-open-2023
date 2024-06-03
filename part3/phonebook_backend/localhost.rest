@@ -6,14 +6,14 @@
 GET {{host}}/api/persons
 
 ###
-GET {{host}}/api/persons/1
+GET {{host}}/api/persons/66598438029ad7a41897f5ab
 
 ###
 POST {{host}}/api/persons 
 Content-Type: application/json
 
 {
-    "name": "Jane Doe",
+    "name": "Joe Dane",
     "number": "012-345-6789"
 }
 
