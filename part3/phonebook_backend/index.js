@@ -28,7 +28,7 @@ const getContactById = (req, res, next) => {
         .catch(err => next(err));
 }
 
-const postContact = async (req, res) => {
+const postContact = async (req, res, next) => {
     const { name, number } = req.body;
     if (!name || !number) {
         return res.status(400).json({ "error": "request must contain name and number." })
@@ -43,10 +43,15 @@ const postContact = async (req, res) => {
         name: name,
         number: number
     });
-    await contact.save();
-    return res.status(200).json({
-        "message": `person with name ${name} created successfully.`
-    });
+    contact
+        .save()
+        .then(result => {
+            console.log(result);
+            return res.status(200).json({
+                "message": `person with name ${name} created successfully.`
+            })
+        })
+        .catch(err => next(err));
 }
 
 const putContact = (req, res) => {
@@ -58,7 +63,7 @@ const putContact = (req, res) => {
     Contact.find({ name: name })
         .then(contacts => {
             contacts.forEach(contact => {
-                Contact.findByIdAndUpdate(contact.id, item, { new: true })
+                Contact.findByIdAndUpdate(contact.id, item, { new: true, runValidators: true, context: 'query' })
                     .then(updatedContact => res.json(updatedContact))
             })
         })
@@ -98,7 +103,8 @@ app.get("/info", async (req, res) => {
 // error handling
 const errorHandler = (err, req, res, next) => {
     console.error(err.message)
-    if (err.name === 'CastError') return res.status(500).json({ "message": "malformatted id" });
+    if (err.name === 'CastError') return res.status(400).json({ error: "malformatted id" });
+    else if (err.name === "ValidationError") return res.status(400).json({ error: err.message })
     next(err);
 }
 app.use(errorHandler)

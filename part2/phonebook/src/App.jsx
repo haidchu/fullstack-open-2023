@@ -37,27 +37,29 @@ const App = () => {
                 name: newName,
                 number: newNumber,
             };
-            setErrorMessage(
-                `${newName}'s number has been updated to ${newNumber}`
-            );
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 5000);
             updatePerson(id, person);
             return;
         }
-        setErrorMessage(`Added ${newName}`);
-        setTimeout(() => {
-            setErrorMessage(null);
-        }, 5000);
-        setPersons(persons.concat(personObject));
-        setFiltered(persons.concat(personObject));
-        setNewName("");
-        setNewNumber("");
         const postData = async () => {
-            const response = await PersonService.create(personObject);
-            setPersons([...persons, response.person])
-            setFiltered([...persons, response.person])
+            PersonService
+                .create(personObject)
+                .then(response => {
+                    console.log(response)
+                    setPersons([...persons, response])
+                    setFiltered([...persons, response])
+                    setErrorMessage(`Added ${newName}`);
+                    setTimeout(() => {
+                        setErrorMessage(null);
+                        setNewName("");
+                        setNewNumber("");
+                    }, 5000);
+                })
+                .catch(err => {
+                    setErrorMessage(err.response.data.error);
+                    setTimeout(() => {
+                        setErrorMessage(null);
+                    }, 5000);
+                })
         };
         postData();
     };
@@ -82,16 +84,32 @@ const App = () => {
     };
 
     const updatePerson = (id, person) => {
-        PersonService.update(id, person).then((response) => {
-            setPersons(
-                persons.map((person) => (person.id !== id ? person : response))
-            );
-            setFiltered(
-                persons.map((person) => (person.id !== id ? person : response))
-            );
-            setNewName("");
-            setNewNumber("");
-        });
+        PersonService
+            .update(id, person)
+            .then((response) => {
+                setPersons(
+                    persons.map((person) => (person.id !== id ? person : response))
+                );
+                setFiltered(
+                    persons.map((person) => (person.id !== id ? person : response))
+                );
+                setErrorMessage(
+                    `${newName}'s number has been updated to ${newNumber}`
+                );
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 5000);
+                setNewName("");
+                setNewNumber("");
+            })
+            .catch(err => {
+                setErrorMessage(
+                    err.response.data.error
+                );
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 5000);
+            })
     };
 
     const handleNameChange = (event) => {
