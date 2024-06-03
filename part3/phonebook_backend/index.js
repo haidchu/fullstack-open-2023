@@ -13,39 +13,12 @@ morgan.token('req-body', function (req, res) {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
-let phonebooks = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
+const getAllContacts = (req, res, next) => {
+    Contact.find({})
+        .then(result => res.json(result));
+}
 
-app.get("/", (req, res) => {
-    return res.send("Hello World");
-});
-
-app.get("/api/persons", async (req, res) => {
-    const result = await Contact.find({});
-    return res.json(result);
-});
-
-app.get("/api/persons/:id", async (req, res, next) => {
+const getContactById = (req, res, next) => {
     const id = req.params.id;
     Contact.findById(id)
         .then(person => {
@@ -53,16 +26,19 @@ app.get("/api/persons/:id", async (req, res, next) => {
             else return res.status(404).json({ "message": "person not found" });
         })
         .catch(err => next(err));
-});
+}
 
-app.post("/api/persons", async (req, res) => {
-    const id = Math.floor(Math.random() * 10000) + 1;
+const postContact = async (req, res) => {
     const { name, number } = req.body;
     if (!name || !number) {
         return res.status(400).json({ "error": "request must contain name and number." })
     }
     const check_existed = await Contact.find({ name: name });
-    if (check_existed.length != 0) return res.status(400).json({ "error": "name must be unique." });
+    if (check_existed.length != 0) {
+        console.log({ "error": "name must be unique." });
+        putContact(req, res);
+        return;
+    }
     const contact = new Contact({
         name: name,
         number: number
@@ -71,25 +47,48 @@ app.post("/api/persons", async (req, res) => {
     return res.status(200).json({
         "message": `person with name ${name} created successfully.`
     });
-});
+}
 
-app.delete("/api/persons/:id", (req, res, next) => {
+const putContact = (req, res) => {
+    const { name, number } = req.body;
+    const item = {
+        name: name,
+        number: number
+    }
+    Contact.find({ name: name })
+        .then(contacts => {
+            contacts.forEach(contact => {
+                Contact.findByIdAndUpdate(contact.id, item, { new: true })
+                    .then(updatedContact => res.json(updatedContact))
+            })
+        })
+}
+
+const deleteContact = (req, res, next) => {
     id = req.params.id;
     Contact.findByIdAndDelete(id)
         .then(result => {
             console.log(result);
             return res.status(204).end();
         })
-        .catch(err => next(err))
-    // person = phonebooks.find((item) => item.id === id);
-    // if (person) {
-    //     phonebooks = phonebooks.filter((item) => item.id !== person.id);
-    // }
-    // return res.status(404).send("person not found");
-})
+        .catch(err => next(err));
+}
 
-app.get("/info", (req, res) => {
+app.get("/", (req, res) => {
+    return res.send("Hello World");
+});
+
+app.get("/api/persons", getAllContacts);
+
+app.get("/api/persons/:id", getContactById);
+
+app.post("/api/persons", postContact);
+
+app.delete("/api/persons/:id", deleteContact)
+
+app.get("/info", async (req, res) => {
     current = new Date().toString()
+    const phonebooks = await Contact.find({})
     message = `
     <p>Phonebook has info for ${phonebooks.length} people</p>
     <p>${current}</p>`

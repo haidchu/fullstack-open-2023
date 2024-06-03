@@ -3,6 +3,9 @@
 @host = http://{{hostname}}:{{port}}
 
 ###
+GET {{host}}/info
+
+###
 GET {{host}}/api/persons
 
 ###
@@ -18,5 +21,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE  {{host}}/api/persons/665d9188aa89decbcaa1c562
+DELETE  {{host}}/api/persons/665da22679e814ad514204fa
 
