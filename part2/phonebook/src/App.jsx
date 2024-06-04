@@ -45,8 +45,8 @@ const App = () => {
                 .create(personObject)
                 .then(response => {
                     console.log(response)
-                    setPersons([...persons, response])
-                    setFiltered([...persons, response])
+                    setPersons([...persons, response.person])
+                    setFiltered([...persons, response.person])
                     setErrorMessage(`Added ${newName}`);
                     setTimeout(() => {
                         setErrorMessage(null);
@@ -55,6 +55,7 @@ const App = () => {
                     }, 5000);
                 })
                 .catch(err => {
+                    console.log(err);
                     setErrorMessage(err.response.data.error);
                     setTimeout(() => {
                         setErrorMessage(null);
@@ -103,6 +104,7 @@ const App = () => {
                 setNewNumber("");
             })
             .catch(err => {
+                console.log(err);
                 setErrorMessage(
                     err.response.data.error
                 );

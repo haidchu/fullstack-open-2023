@@ -6,7 +6,6 @@ const ListPerson = (props) => {
         <div>
             <h1>Number</h1>
             {persons.map((person, index) => {
-                console.log(person)
                 return (
                     <div key={person.name}>
                         <Person

@@ -46,9 +46,9 @@ const postContact = async (req, res, next) => {
     contact
         .save()
         .then(result => {
-            console.log(result);
             return res.status(200).json({
-                "message": `person with name ${name} created successfully.`
+                "message": `person with name ${name} created successfully.`,
+                "person": result
             })
         })
         .catch(err => next(err));
@@ -102,14 +102,13 @@ app.get("/info", async (req, res) => {
 
 // error handling
 const errorHandler = (err, req, res, next) => {
-    console.error(err.message)
     if (err.name === 'CastError') return res.status(400).json({ error: "malformatted id" });
     else if (err.name === "ValidationError") return res.status(400).json({ error: err.message })
     next(err);
 }
 app.use(errorHandler)
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`)
 })
