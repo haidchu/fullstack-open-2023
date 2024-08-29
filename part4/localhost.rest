@@ -1,0 +1,20 @@
+@hostname = localhost
+@port = 3003
+@host = http://{{hostname}}:{{port}}
+
+###
+GET {{host}}/api/blogs
+
+###
+POST {{host}}/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Blog #1",
+    "author": "hai.d.chu",
+    "url": "https://google.com",
+    "like": 10
+}
+
+# ###
+# DELETE  {{host}}/api/persons/665dbc0b01fc71cce3074c93
