@@ -50,6 +50,25 @@ test.only('test POST', async () => {
     assert.strictEqual(result.body.length, 1)
 })
 
+test.only('test likes property', async () => {
+    await Blog.deleteMany({})
+    const dummy = {
+        title: "dummy title",
+        author: "dummy author",
+        url: "https://dummy.url.com",
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(dummy)
+        .set('Accept', 'application/json')
+
+    const result = await api
+        .get('/api/blogs')
+    console.log(result.body)
+    assert.strictEqual(result.body[0].likes, 0)
+})
+
 after(async () => {
     await Blog.deleteMany({})
     await mongoose.connection.close()
