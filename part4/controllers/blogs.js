@@ -9,6 +9,9 @@ router.get('/', async (request, response) => {
 
 router.post('/', async (request, response) => {
     const temp = request.body
+    if (!('title' in temp && 'url' in temp)) {
+        return response.status(400).json('title or url missing')
+    }
     if (!('likes' in temp)) {
         temp['likes'] = 0
     }

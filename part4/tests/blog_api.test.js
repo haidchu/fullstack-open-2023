@@ -17,7 +17,7 @@ beforeEach(async () => {
     await Promise.all(promise)
 })
 
-test.only('notes are returned as json', async () => {
+test('notes are returned as json', async () => {
     await api
         .get('/api/blogs')
         .expect(200)
@@ -25,13 +25,13 @@ test.only('notes are returned as json', async () => {
     // .then((content) => console.log(content.body))
 })
 
-test.only('blog should contain \"id\" not \"_id\"', async () => {
+test('blog should contain \"id\" not \"_id\"', async () => {
     const response = await api.get('/api/blogs')
     assert.strictEqual('id' in response.body[0], true)
     assert.strictEqual('_id' in response.body[0], false)
 })
 
-test.only('test POST', async () => {
+test('test POST', async () => {
     await Blog.deleteMany({})
     const dummy = {
         title: "dummy title",
@@ -50,7 +50,7 @@ test.only('test POST', async () => {
     assert.strictEqual(result.body.length, 1)
 })
 
-test.only('test likes property', async () => {
+test('test likes property', async () => {
     await Blog.deleteMany({})
     const dummy = {
         title: "dummy title",
@@ -65,8 +65,20 @@ test.only('test likes property', async () => {
 
     const result = await api
         .get('/api/blogs')
-    console.log(result.body)
     assert.strictEqual(result.body[0].likes, 0)
+})
+
+test.only('test url and title properties', async () => {
+    await Blog.deleteMany({})
+    const dummy = {
+        author: "dummy author",
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(dummy)
+        .set('Accept', 'application/json')
+        .expect(400)
 })
 
 after(async () => {
