@@ -68,7 +68,7 @@ test('test likes property', async () => {
     assert.strictEqual(result.body[0].likes, 0)
 })
 
-test.only('test url and title properties', async () => {
+test('test url and title properties', async () => {
     await Blog.deleteMany({})
     const dummy = {
         author: "dummy author",
@@ -79,6 +79,32 @@ test.only('test url and title properties', async () => {
         .send(dummy)
         .set('Accept', 'application/json')
         .expect(400)
+})
+
+test.only('test delete', async() => {
+    await Blog.deleteMany({})
+    const dummy = {
+        title: "dummy title",
+        author: "dummy author",
+        url: "https://dummy.url.com",
+        likes: 7,
+    }
+
+    const get_res = await api
+        .post('/api/blogs')
+        .send(dummy)
+        .set('Accept', 'application/json')
+
+    const new_blog = await api
+        .get('/api/blogs')
+        .set('Accept', 'application/json')
+
+    const id = new_blog.body[0].id
+
+    const delete_res = await api
+        .delete(`/api/blogs/${id}`)
+        .expect(204)
+        
 })
 
 after(async () => {

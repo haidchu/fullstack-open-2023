@@ -10,11 +10,11 @@ POST {{host}}/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Blog #2",
+    "title": "Blog #1",
     "author": "hai.d.chu",
     "url": "https://google.com",
     "like": 10
 }
 
-# ###
-# DELETE  {{host}}/api/persons/665dbc0b01fc71cce3074c93
+###
+DELETE  {{host}}/api/blogs/66e057a4220135bd41b4ab34
