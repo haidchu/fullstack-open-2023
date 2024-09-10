@@ -81,7 +81,7 @@ test('test url and title properties', async () => {
         .expect(400)
 })
 
-test.only('test delete', async() => {
+test('test DELETE', async() => {
     await Blog.deleteMany({})
     const dummy = {
         title: "dummy title",
@@ -101,10 +101,31 @@ test.only('test delete', async() => {
 
     const id = new_blog.body[0].id
 
-    const delete_res = await api
+    await api
         .delete(`/api/blogs/${id}`)
         .expect(204)
-        
+})
+
+test.only('test PUT', async() => {
+    await Blog.deleteMany({})
+    let dummy = {
+        title: "dummy title",
+        author: "dummy author",
+        url: "https://dummy.url.com",
+        likes: 7,
+    }
+    const response = await api
+        .post('/api/blogs')
+        .send(dummy)
+        .set('Accept', 'application/json')
+
+    const id = response.body.id
+    dummy.likes = 10
+    await api
+        .put(`/api/blogs/${id}`)
+        .send(dummy)
+        .set('Accept', 'application/json')
+        .expect(204)
 })
 
 after(async () => {
