@@ -29,3 +29,16 @@ Content-Type: application/json
     "url": "https://google.com",
     "likes": 10
 }
+
+###
+GET {{host}}/api/users
+
+###
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+    "username": "hai.d.chu",
+    "name": "Hai Chu",
+    "password": "#1@haichu1303"
+}
