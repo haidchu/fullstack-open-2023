@@ -4,10 +4,14 @@ const router = express.Router()
 const bcrypt = require('bcryptjs')
 
 const logger = require('../utils/logger')
+
 const User = require('../models/user')
+const Blog = require('../models/blog')
+
+const { createSearchIndex } = require('../models/blog')
 
 router.get('/', async (req, res, next) => {
-    const users = await User.find({})
+    const users = await User.find({}).populate('blogs')
     res.json(users)
 })
 
@@ -22,7 +26,7 @@ router.post('/', async (req, res, next) => {
     const checkExisted = await User.find({ username: username })
     if (checkExisted.length !== 0)
         return res.status(400).json({ 'message': 'username must be unique' })
-
+    
     const salt = 10
     const passwordHash = await bcrypt.hash(password, salt)
 
@@ -38,7 +42,21 @@ router.post('/', async (req, res, next) => {
     } catch (err) {
         next(err)
     }
+})
 
+router.put(':/id', async (req, res) => {
+    
+})
+
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        const result = await User.findByIdAndDelete(id)
+        // logger.info(result)
+    } catch (err) {
+        logger.error(err)
+    }
+    res.status(204).json({ 'message': 'user deleted' })
 })
 
 module.exports = router

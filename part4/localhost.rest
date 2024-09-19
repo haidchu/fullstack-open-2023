@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE  {{host}}/api/blogs/66e0596e59aabd0c86b54806
+DELETE  {{host}}/api/blogs/66ec45098a59d0235e012138
 
 ###
 PUT  {{host}}/api/blogs/66e05eedcb6d09f40f3c68ae
@@ -38,7 +38,10 @@ POST {{host}}/api/users
 Content-Type: application/json
 
 {
-    "username": "hai.d.chu.13",
+    "username": "hai.d.chu",
     "name": "Hai Chu",
-    "password": "#2"
+    "password": "#2_pass"
 }
+
+###
+DELETE  {{host}}/api/users/66ec399f66a6bbec4952c571

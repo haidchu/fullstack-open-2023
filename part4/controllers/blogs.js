@@ -3,10 +3,10 @@ const router = express.Router()
 
 const logger = require('../utils/logger')
 const Blog = require('../models/blog')
-
+const User = require('../models/user')
 
 router.get('/', async (req, res, next) => {
-    const blogs = await Blog.find({})
+    const blogs = await Blog.find({}).populate('users')
     res.json(blogs)
 })
 
@@ -18,8 +18,20 @@ router.post('/', async (req, res, next) => {
     if (!('likes' in temp)) {
         temp['likes'] = 0
     }
+    const users = await User.find({})
+    const rand_user = users[0]
+
+    temp['users'] = rand_user
+
     const blog = new Blog(req.body)
     const result = await blog.save()
+
+    const blogId = result._id.toString()
+
+    let currentId = rand_user.blogs
+    currentId.push(blogId)
+    await User.findByIdAndUpdate(rand_user.id, { blogs: currentId })
+
     res.status(201).json(result)
 })
 
@@ -27,7 +39,7 @@ router.delete('/:id', async (req, res, next) => {
     const id = req.params.id
     try {
         const result = await Blog.findByIdAndDelete(id)
-        logger.info(result)
+        // logger.info(result)
     } catch (err) {
         logger.error(err)
     }
