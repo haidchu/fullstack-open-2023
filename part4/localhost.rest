@@ -38,7 +38,7 @@ POST {{host}}/api/users
 Content-Type: application/json
 
 {
-    "username": "hai.d.chu",
+    "username": "hai.d.chu.13",
     "name": "Hai Chu",
-    "password": "#1@haichu1303"
+    "password": "#2"
 }

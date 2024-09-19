@@ -6,13 +6,23 @@ const bcrypt = require('bcryptjs')
 const logger = require('../utils/logger')
 const User = require('../models/user')
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     const users = await User.find({})
     res.json(users)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     const { username, name, password } = req.body
+    if (!username || !password)
+        return res.status(400).json({ 'message': 'username and password must be provided' })
+
+    if (username.length < 3 || password.length < 3)
+        return res.status(400).json({ 'message': 'username and password must contain at least 3 characters' })
+
+    const checkExisted = await User.find({ username: username })
+    if (checkExisted.length !== 0)
+        return res.status(400).json({ 'message': 'username must be unique' })
+
     const salt = 10
     const passwordHash = await bcrypt.hash(password, salt)
 
@@ -21,9 +31,14 @@ router.post('/', async (req, res) => {
         name,
         passwordHash
     })
-    const savedUser = await user.save()
+    try {
 
-    res.status(201).json(savedUser)
+        const savedUser = await user.save()
+        res.status(201).json(savedUser)
+    } catch (err) {
+        next(err)
+    }
+
 })
 
 module.exports = router

@@ -39,6 +39,35 @@ const blogs = [
     }
 ]
 
+const users = [
+    {
+        username: "#1_uname",
+        name: "#1 name",
+        password: "#1_pass"
+    },
+    {
+        username: "#2_uname",
+        name: "#2 name",
+        password: "#2_pass"
+    },
+    {
+        username: "#3_uname",
+        name: "#3 name",
+        password: "#3_pass"
+    },
+    {
+        username: "#4_uname",
+        name: "#4 name",
+        password: "#4_pass"
+    },
+    {
+        username: "#5_uname",
+        name: "#5 name",
+        password: "#5_pass"
+    }
+]
+
 module.exports = {
-    blogs
+    blogs,
+    users
 }

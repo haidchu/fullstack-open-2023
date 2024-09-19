@@ -5,12 +5,12 @@ const logger = require('../utils/logger')
 const Blog = require('../models/blog')
 
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     const blogs = await Blog.find({})
     res.json(blogs)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     const temp = req.body
     if (!('title' in temp && 'url' in temp)) {
         return res.status(400).json('title or url missing')
@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(result)
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
     const id = req.params.id
     try {
         const result = await Blog.findByIdAndDelete(id)
@@ -34,7 +34,7 @@ router.delete('/:id', async (req, res) => {
     res.status(204).json({ 'message': 'blog deleted' }).end()
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
     const id = req.params.id
     const old = await Blog.findById(id)
     if (!old) return res.status(404).json({ 'message': 'blog not found' }).end()
