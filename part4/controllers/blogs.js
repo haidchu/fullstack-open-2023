@@ -1,9 +1,18 @@
 const express = require('express')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 
 const logger = require('../utils/logger')
 const Blog = require('../models/blog')
 const User = require('../models/user')
+
+const getTokenFrom = (req) => {
+    const authorization = req.get('authorization')
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '')
+    }
+    return null
+}
 
 router.get('/', async (req, res, next) => {
     const blogs = await Blog.find({}).populate('users')
@@ -11,6 +20,15 @@ router.get('/', async (req, res, next) => {
 })
 
 router.post('/', async (req, res, next) => {
+    let decodedToken = null
+    try {
+        decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+    } catch(err) {
+        logger.error(err)
+        return res.status(401).json({ 'message': 'token invalid' })
+    }
+    if (!decodedToken.id) return res.status(401).json({ 'message': 'token invalid' })
+
     const temp = req.body
     if (!('title' in temp && 'url' in temp)) {
         return res.status(400).json('title or url missing')
@@ -18,19 +36,16 @@ router.post('/', async (req, res, next) => {
     if (!('likes' in temp)) {
         temp['likes'] = 0
     }
-    const users = await User.find({})
-    const rand_user = users[0]
-
-    temp['users'] = rand_user
+    const user = await User.findById(decodedToken.id)
 
     const blog = new Blog(req.body)
     const result = await blog.save()
 
     const blogId = result._id.toString()
 
-    let currentId = rand_user.blogs
+    let currentId = user.blogs
     currentId.push(blogId)
-    await User.findByIdAndUpdate(rand_user.id, { blogs: currentId })
+    await User.findByIdAndUpdate(user.id, { blogs: currentId })
 
     res.status(201).json(result)
 })
