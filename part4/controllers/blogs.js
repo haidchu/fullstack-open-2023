@@ -21,17 +21,17 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     let decodedToken = null
-    decodedToken = jwt.verify(req.token, process.env.SECRET)
     try {
-    } catch(err) {
+        decodedToken = jwt.verify(req.token, process.env.SECRET)
+    } catch (err) {
         logger.error(err)
-        return res.status(401).json({ 'message': 'token invalid' })
+        return res.status(401).json({ 'error': 'token invalid' })
     }
-    if (!decodedToken.id) return res.status(401).json({ 'message': 'token invalid' })
+    if (!decodedToken.id) return res.status(401).json({ 'error': 'token invalid' })
 
     const temp = req.body
     if (!('title' in temp && 'url' in temp)) {
-        return res.status(400).json('title or url missing')
+        return res.status(400).json({ 'error': 'title or url missing' })
     }
     if (!('likes' in temp)) {
         temp['likes'] = 0
@@ -51,9 +51,13 @@ router.post('/', async (req, res, next) => {
 })
 
 router.delete('/:id', async (req, res, next) => {
-    const id = req.params.id
+    const blogId = req.params.id
+    const blog = await Blog.findById(blogId)
+    if (!blog) return res.status(404).json({ 'error': 'blog not found' })
+
+    const userToken = req.token
     try {
-        const result = await Blog.findByIdAndDelete(id)
+        const result = await Blog.findByIdAndDelete(blogId)
         // logger.info(result)
     } catch (err) {
         logger.error(err)
@@ -64,7 +68,7 @@ router.delete('/:id', async (req, res, next) => {
 router.put('/:id', async (req, res, next) => {
     const id = req.params.id
     const old = await Blog.findById(id)
-    if (!old) return res.status(404).json({ 'message': 'blog not found' }).end()
+    if (!old) return res.status(404).json({ 'error': 'blog not found' }).end()
     // logger.info(old)
     const title = req.body.title || old.title
     const author = req.body.author || old.author
@@ -83,7 +87,7 @@ router.put('/:id', async (req, res, next) => {
         return res.status(204).end()
     } catch (err) {
         logger.error(err)
-        return res.status(404).json({ 'message': 'unknown error' }).end()
+        return res.status(404).json({ 'error': 'unknown error' }).end()
     }
 })
 
