@@ -21,8 +21,8 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     let decodedToken = null
+    decodedToken = jwt.verify(req.token, process.env.SECRET)
     try {
-        decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
     } catch(err) {
         logger.error(err)
         return res.status(401).json({ 'message': 'token invalid' })
