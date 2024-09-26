@@ -15,7 +15,7 @@ const getTokenFrom = (req) => {
 }
 
 router.get('/', async (req, res, next) => {
-    const blogs = await Blog.find({}).populate('users')
+    const blogs = await Blog.find({}).populate('user')
     res.json(blogs)
 })
 
@@ -39,6 +39,7 @@ router.post('/', async (req, res, next) => {
     const user = await User.findById(decodedToken.id)
 
     const blog = new Blog(req.body)
+    blog['user'] = user.id
     const result = await blog.save()
 
     const blogId = result._id.toString()
@@ -53,16 +54,28 @@ router.post('/', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     const blogId = req.params.id
     const blog = await Blog.findById(blogId)
-    if (!blog) return res.status(404).json({ 'error': 'blog not found' })
+    if (!blog)
+        return res.status(404).json({ 'error': 'blog not found' })
 
-    const userToken = req.token
+    const userIdToken = jwt.verify(req.token, process.env.SECRET)
+    if (!userIdToken)
+        return res.status(500).json({ 'error': 'internal sever error' })
+
+    if (userIdToken.id.toString() !== blog.user.toString())
+        return res.status(401).json({ 'error': 'permission error' })
+
+    const user = await User.findById(userIdToken.id)
+    user.blogs.splice(user.blogs.indexOf(blogId), 1)
+    const updatedUserBlog = user.blogs
+    User.findByIdAndUpdate(userIdToken.id, { updatedUserBlog })
+    
     try {
-        const result = await Blog.findByIdAndDelete(blogId)
+        await Blog.findByIdAndDelete(blogId)
         // logger.info(result)
     } catch (err) {
         logger.error(err)
     }
-    res.status(204).json({ 'message': 'blog deleted' }).end()
+    return res.status(204).json({ 'message': 'blog deleted' })
 })
 
 router.put('/:id', async (req, res, next) => {
