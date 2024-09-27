@@ -11,22 +11,22 @@ const Blog = require('../models/blog')
 const { createSearchIndex } = require('../models/blog')
 
 router.get('/', async (req, res, next) => {
-    const users = await User.find({}).populate('blogs')
+    const users = await User.find({}).populate('blogs', { url: 1, title: 1, author: 1 })
     res.json(users)
 })
 
 router.post('/', async (req, res, next) => {
     const { username, name, password } = req.body
     if (!username || !password)
-        return res.status(400).json({ 'message': 'username and password must be provided' })
+        return res.status(400).json({ 'error': 'username and password must be provided' })
 
     if (username.length < 3 || password.length < 3)
-        return res.status(400).json({ 'message': 'username and password must contain at least 3 characters' })
+        return res.status(400).json({ 'error': 'username and password must contain at least 3 characters' })
 
     const checkExisted = await User.find({ username: username })
     if (checkExisted.length !== 0)
-        return res.status(400).json({ 'message': 'username must be unique' })
-    
+        return res.status(400).json({ 'error': 'username must be unique' })
+
     const salt = 10
     const passwordHash = await bcrypt.hash(password, salt)
 
@@ -45,7 +45,7 @@ router.post('/', async (req, res, next) => {
 })
 
 router.put(':/id', async (req, res) => {
-    
+
 })
 
 router.delete('/:id', async (req, res) => {

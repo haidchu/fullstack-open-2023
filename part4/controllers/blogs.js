@@ -6,29 +6,12 @@ const logger = require('../utils/logger')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
-const getTokenFrom = (req) => {
-    const authorization = req.get('authorization')
-    if (authorization && authorization.startsWith('Bearer ')) {
-        return authorization.replace('Bearer ', '')
-    }
-    return null
-}
-
 router.get('/', async (req, res, next) => {
-    const blogs = await Blog.find({}).populate('user')
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     res.json(blogs)
 })
 
 router.post('/', async (req, res, next) => {
-    let decodedToken = null
-    try {
-        decodedToken = jwt.verify(req.token, process.env.SECRET)
-    } catch (err) {
-        logger.error(err)
-        return res.status(401).json({ 'error': 'token invalid' })
-    }
-    if (!decodedToken.id) return res.status(401).json({ 'error': 'token invalid' })
-
     const temp = req.body
     if (!('title' in temp && 'url' in temp)) {
         return res.status(400).json({ 'error': 'title or url missing' })
@@ -36,7 +19,8 @@ router.post('/', async (req, res, next) => {
     if (!('likes' in temp)) {
         temp['likes'] = 0
     }
-    const user = await User.findById(decodedToken.id)
+    const user = req.user
+    // if (user === null) return res.status(401).json({'error': 'token invalid'})
 
     const blog = new Blog(req.body)
     blog['user'] = user.id
@@ -57,18 +41,13 @@ router.delete('/:id', async (req, res, next) => {
     if (!blog)
         return res.status(404).json({ 'error': 'blog not found' })
 
-    const userIdToken = jwt.verify(req.token, process.env.SECRET)
-    if (!userIdToken)
-        return res.status(500).json({ 'error': 'internal sever error' })
+    const user = req.user
+    // if (user === null) return res.status(401).json({'error': 'token invalid'})
 
-    if (userIdToken.id.toString() !== blog.user.toString())
-        return res.status(401).json({ 'error': 'permission error' })
-
-    const user = await User.findById(userIdToken.id)
     user.blogs.splice(user.blogs.indexOf(blogId), 1)
     const updatedUserBlog = user.blogs
-    User.findByIdAndUpdate(userIdToken.id, { updatedUserBlog })
-    
+    User.findByIdAndUpdate(user.id, { updatedUserBlog })
+
     try {
         await Blog.findByIdAndDelete(blogId)
         // logger.info(result)

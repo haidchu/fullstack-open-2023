@@ -8,18 +8,18 @@ GET {{host}}/api/blogs
 ###
 POST {{host}}/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhhaS5kLmNodSIsImlkIjoiNjZmNTY5NTgwOGQ5NmY0OWRkMDViNmE0IiwiaWF0IjoxNzI3MzU5NTAyfQ.1h8hzycLyej2ZEsLG_JUg8eZwhXyN-58-gw4Nznr3hc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhhaS5kLmNodSIsImlkIjoiNjZmNTY5NTgwOGQ5NmY0OWRkMDViNmE0IiwiaWF0IjoxNzI3NDI0NTc0fQ._zP7zB8NsMZwS8k3ibH7B1OrCYaPH1Xe1mPXsAkXuWo
 
 {
-    "title": "Blog #1",
+    "title": "Blog #2",
     "author": "hai.d.chu",
     "url": "https://google.com",
     "likes": 10
 }
 
 ###
-DELETE  {{host}}/api/blogs/66f56a57f5a4d33a661f846b
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhhaS5kLmNodSIsImlkIjoiNjZmNTY5NTgwOGQ5NmY0OWRkMDViNmE0IiwiaWF0IjoxNzI3MzYwMDA4fQ.589oFvzqvmTeqg8xZ7NxpaoKZUPrn0Qq6xLNNNj3KBk
+DELETE  {{host}}/api/blogs/66f66b2c5f024c03b2712a0b
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhhaS5kLmNodSIsImlkIjoiNjZmNTY5NTgwOGQ5NmY0OWRkMDViNmE0IiwiaWF0IjoxNzI3NDI0NDg2fQ.a14ryUZNyiV4LpLC77WcbvsxqFnLZUdowVCXY93iVl0
 
 ###
 PUT  {{host}}/api/blogs/66e05eedcb6d09f40f3c68ae
