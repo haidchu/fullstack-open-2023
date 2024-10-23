@@ -3,77 +3,107 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import axios from 'axios'
 
+import Login from './components/Login'
+
 const App = () => {
 	const [blogs, setBlogs] = useState([])
-	const [user, setUser] = useState(null)
-	const [username, setUsername] = useState('')
-	const [password, setPassword] = useState('')
+	const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+	const [message, setMessage] = useState('')
+
+	const [title, setTitle] = useState('')
+	const [author, setAuthor] = useState('')
+	const [url, setUrl] = useState('')
 
 	useEffect(() => {
+		const local = JSON.parse(localStorage.getItem('user'))
+		setUser(local)
 		blogService.getAll().then(blogs =>
 			setBlogs(blogs)
 		)
 	}, [])
 
-	const handleLogin = async (e) => {
-		e.preventDefault()
-		const res = await axios.post('/api/login', {
-			username: username,
-			password: password,
-		}, {
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-		setUser({
-			name: res.data.name,
-			username: res.data.username,
-			token: res.data.token
-		})
-		localStorage.setItem('user', user)
+	const changeMessage = (m) => {
+		setMessage(m)
+		setTimeout(() => {
+			setMessage('')
+		}, 500)
 	}
 
-	const handleLogout = async () => {
-		setUsername('')
-		setPassword('')
+	const handleLogout = () => {
 		setUser(null)
 		localStorage.clear()
 	}
-	if (user === null) {
-		return (
-			<div>
-				<h2>Log in to application</h2>
-				<form
-					onSubmit={handleLogin}>
-					<div>
-						<label>Username:
-							<input
-								type="text"
-								name='username'
-								onChange={(e) => { setUsername(e.target.value) }} />
-						</label>
-						<label>Password:
-							<input
-								type="password"
-								name='password'
-								onChange={(e) => { setPassword(e.target.value) }} />
-						</label>
-					</div>
-					<div>
-						<input type="submit" value='Log in' />
-					</div>
-				</form>
-			</div>
-		)
+
+	const handleCreateBlog = async (e) => {
+		e.preventDefault()
+		try {
+			await axios.post('/api/blogs', {
+				author: author,
+				title: title,
+				url: url
+			}, {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${user.token}`
+				}
+			})
+			changeMessage(`a new blog ${title} by ${author} added`)
+
+			const res = await axios.get('/api/blogs')
+			setBlogs(res.data)
+		} catch (err) {
+			console.log(err)
+			changeMessage(`something went wrong`)
+		}
 	}
 
 	return (
 		<div>
-			<h2>blogs</h2>
-			<p>{user.name} logged in</p>
-			<button onClick={handleLogout}>log out</button>
-			{blogs.map(blog =>
-				<Blog key={blog.id} blog={blog} />
+			{user === null ? (
+				<Login setUser={setUser} message={message} setMessage={setMessage} />
+			) : (
+				<div>
+					<h2>blogs</h2>
+					<h1>{message}</h1>
+					<label>
+						{user.name} logged in
+						<button onClick={handleLogout}>log out</button>
+					</label>
+
+					<h2>create new</h2>
+					<form onSubmit={handleCreateBlog}>
+						<div style={{
+							display: 'flex',
+							flexDirection: 'column'
+						}}>
+							<label>
+								title:
+								<input
+									type='text'
+									onChange={e => { setTitle(e.target.value) }} />
+							</label>
+							<label>
+								author:
+								<input
+									type='text'
+									onChange={e => { setAuthor(e.target.value) }} />
+							</label>
+							<label>
+								url:
+								<input
+									type='text'
+									onChange={e => { setUrl(e.target.value) }} />
+							</label>
+						</div>
+						<div>
+							<input type='submit' value='create' />
+						</div>
+					</form>
+
+					{blogs.map(blog =>
+						<Blog key={blog.id} blog={blog} />
+					)}
+				</div>
 			)}
 		</div>
 	)
