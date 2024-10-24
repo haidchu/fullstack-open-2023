@@ -4,15 +4,13 @@ import blogService from './services/blogs'
 import axios from 'axios'
 
 import Login from './components/Login'
+import CreateBlogForm from './components/CreateBlog'
 
 const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
 	const [message, setMessage] = useState('')
-
-	const [title, setTitle] = useState('')
-	const [author, setAuthor] = useState('')
-	const [url, setUrl] = useState('')
+	const [createBlogVisible, setCreateBlogVisible] = useState(false)
 
 	useEffect(() => {
 		const local = JSON.parse(localStorage.getItem('user'))
@@ -34,33 +32,16 @@ const App = () => {
 		localStorage.clear()
 	}
 
-	const handleCreateBlog = async (e) => {
-		e.preventDefault()
-		try {
-			await axios.post('/api/blogs', {
-				author: author,
-				title: title,
-				url: url
-			}, {
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${user.token}`
-				}
-			})
-			changeMessage(`a new blog ${title} by ${author} added`)
-
-			const res = await axios.get('/api/blogs')
-			setBlogs(res.data)
-		} catch (err) {
-			console.log(err)
-			changeMessage(`something went wrong`)
-		}
-	}
+	const showWhenVisible = { display: createBlogVisible ? 'none' : '' }
+	const hideWhenVisible = { display: createBlogVisible ? '' : 'none' }
 
 	return (
 		<div>
 			{user === null ? (
-				<Login setUser={setUser} message={message} setMessage={setMessage} />
+				<Login
+					setUser={setUser}
+					message={message}
+					setMessage={setMessage} />
 			) : (
 				<div>
 					<h2>blogs</h2>
@@ -69,40 +50,22 @@ const App = () => {
 						{user.name} logged in
 						<button onClick={handleLogout}>log out</button>
 					</label>
-
-					<h2>create new</h2>
-					<form onSubmit={handleCreateBlog}>
-						<div style={{
-							display: 'flex',
-							flexDirection: 'column'
-						}}>
-							<label>
-								title:
-								<input
-									type='text'
-									onChange={e => { setTitle(e.target.value) }} />
-							</label>
-							<label>
-								author:
-								<input
-									type='text'
-									onChange={e => { setAuthor(e.target.value) }} />
-							</label>
-							<label>
-								url:
-								<input
-									type='text'
-									onChange={e => { setUrl(e.target.value) }} />
-							</label>
-						</div>
-						<div>
-							<input type='submit' value='create' />
-						</div>
-					</form>
-
+					<div style={hideWhenVisible}>
+						<CreateBlogForm
+							user={user}
+							message={message}
+							setBlogs={setBlogs}
+							setMessage={setMessage}
+							setCreateBlogVisible={setCreateBlogVisible} />
+						<button
+							onClick={() => setCreateBlogVisible(false)}>cancel</button>
+					</div>
 					{blogs.map(blog =>
 						<Blog key={blog.id} blog={blog} />
 					)}
+					<button
+						style={showWhenVisible}
+						onClick={() => { setCreateBlogVisible(!createBlogVisible) }}>new note</button>
 				</div>
 			)}
 		</div>
